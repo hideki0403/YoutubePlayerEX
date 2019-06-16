@@ -1,0 +1,68 @@
+body {
+    position: relative;
+}
+
+.player-out iframe {
+    opacity: 1;
+    transition: 0.3s
+}
+
+.player-out iframe:hover {
+    opacity: 0.7;
+}
+
+.title {
+    opacity: 0.3;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+    -webkit-app-region: drag;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    text-align: right;
+    vertical-align: middle;
+}
+
+.title a {
+    -webkit-user-select: none;
+}
+
+.title:hover {
+    opacity: 0.7;
+}
+
+.text {
+    position: absolute;
+    color: rgb(255, 255, 255);
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.menu {
+    background-color: rgba(40, 44, 52, 0.95);
+    width: 100%;
+    height: 100%;
+}
+
+.hidden {
+    visibility : hidden;
+}
+
+.container {
+    padding-top: 80px;
+}
+
+.infobox {
+    padding-top: 25px
+}
+
+.background {
+    width: 100%;
+    height: 100%;
+    filter: blur(5px);
+}

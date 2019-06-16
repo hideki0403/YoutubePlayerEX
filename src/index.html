@@ -1,0 +1,31 @@
+<head>
+    <meta charset="UTF-8">
+    <title>YoutubePlayerEX</title>
+    <link rel="stylesheet" href="design.css">
+    <script>window.jQuery = window.$ = require('jquery')</script>
+    <script src="ytex.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+
+<body style="margin:0; padding:0; background-color: rgba(0, 0, 0, 0)">
+    <div id="frame" class="title">
+        <i class="material-icons white-text">remove</i>
+        <i class="material-icons white-text">crop_square</i>
+        <i class="material-icons white-text">close</i>
+    </div>
+    <div id="player-outside" class="player-out"><div id="player"></div></div>
+    <div class="menu" id="menu">
+        <div class="container">
+            <div class="input-field">
+                    <input id="vurl" type="text" class="validate white-text">
+                    <label for="vurl" class="grey-text text-lighten-2">YoutubeのURLをここに貼り付けてください</label>
+            </div>
+            <a id="play" class="waves-effect waves-light btn red"><i class="material-icons left">play_arrow</i>再生</a>
+            <div class="red-text infobox" id="error"></div><div class="green-text infobox" id="success"></div>
+        </div>
+    </div>
+    <div class="background"></div>
+</body>
