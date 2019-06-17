@@ -27,6 +27,9 @@ function loadVideo(vurl) {
         if(obj.list !== undefined) {
             options.playerVars.listType = 'list'
             options.playerVars.list = obj.list
+            if(obj.index !==undefined) {
+                options.playerVars.index= obj.index - 1
+            }
         } else if(obj.v !== undefined) {
             options.videoId = obj.v
         } else {
@@ -35,6 +38,7 @@ function loadVideo(vurl) {
 
         success()
         ytPlayer = new YT.Player('player', options)
+        $('#menu').attr('hidden')
 
     } else {
         // エラー時
@@ -44,9 +48,12 @@ function loadVideo(vurl) {
 }
 
 function onPlayerStateChange(event) {
+    // タイトル更新
+    document.title = $('#player').contents().find('.ytp-title-text')[0].innerText
     if (event.target.getPlayerState() === YT.PlayerState.ENDED) {
         if(event.target.getPlaylist() === null || event.target.getPlaylist().length === event.target.getPlaylistIndex() + 1) {
             event.target.destroy()
+            $('#menu').removeAttr('hidden')
             $('body').prepend('<div id="player"></div>')
         }
     }
