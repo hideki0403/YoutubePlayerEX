@@ -1,4 +1,19 @@
 const url = require('url')
+const remote = require('electron').remote
+const Menu = remote.Menu
+const MenuItem = remote.MenuItem
+
+var menu = new Menu()
+menu.append(new MenuItem({
+    label: '貼り付け',
+    accelerator: 'CmdOrCtrl+V',
+    role: 'paste'
+  }))
+
+window.addEventListener('contextmenu', function (e) {
+  e.preventDefault()
+  menu.popup(remote.getCurrentWindow())
+}, false)
 
 window.onload = function(){
     var playbutton = $('#play')[0]
@@ -22,7 +37,7 @@ function loadVideo(vurl) {
     var obj = parseVideoId(vurl)
 
     if(obj !== null) {
-        var options = {width: '100%', height: '100%', playerVars: {rel: 0, autoplay: 1},events: {'onStateChange': onPlayerStateChange, 'onError': error}}
+        var options = {width: '100%', height: '100%', playerVars: {rel: 0, autoplay: 1},events: {'onStateChange': onPlayerStateChange, 'onError': error, 'onReady': hiddenMenu}}
 
         if(obj.list !== undefined) {
             options.playerVars.listType = 'list'
@@ -38,7 +53,6 @@ function loadVideo(vurl) {
 
         success()
         ytPlayer = new YT.Player('player', options)
-        $('#menu').attr('hidden')
 
     } else {
         // エラー時
@@ -86,25 +100,14 @@ function error(event) {
     $('#success').text('')
 }
 
+function hiddenMenu() {
+    $('#menu').attr('hidden', 'dummy')
+}
+
 function success() {
     $('#success').text('再生に成功しました')
     $('#error').text('')
 }
-
-// フレームのhover
-/*
-$('#frame').hover(
-    function() {
-        console.log('a')
-        $('#frame').addClass('frame-hover')
-    }, function() {
-        console.log('a')
-        if($('#frame').hasClass('frame-hover')) {
-            $('#frame').removeClass('frame-hover')
-        }
-    }
-)
-*/
 
 /*  デバッグ用  */
 function onYouTubeIframeAPIReady() {
