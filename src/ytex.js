@@ -1,13 +1,22 @@
 const url = require('url')
 const remote = require('electron').remote
+const electron = require('electron')
 const Menu = remote.Menu
 const MenuItem = remote.MenuItem
+const clipboard = electron.clipboard
+const shell = electron.shell
+const ipcRenderer = electron.ipcRenderer
 
 var menu = new Menu()
 menu.append(new MenuItem({
     label: '貼り付け',
     accelerator: 'CmdOrCtrl+V',
-    role: 'paste'
+    click: function() {
+        $('#vurl').focus()
+        setTimeout(function() {
+            $('#vurl').val(clipboard.readText())
+        }, 200)
+    }
   }))
 
 window.addEventListener('contextmenu', function (e) {
@@ -17,8 +26,13 @@ window.addEventListener('contextmenu', function (e) {
 
 window.onload = function(){
     var playbutton = $('#play')[0]
-    playbutton.onclick = function(){
+    playbutton.onclick = function() {
         loadVideo($('#vurl').val())
+    }
+
+    var close = $('#close-button')[0]
+    close.onclick = function() {
+        ipcRenderer.send('close')
     }
 }
 
@@ -37,7 +51,7 @@ function loadVideo(vurl) {
     var obj = parseVideoId(vurl)
 
     if(obj !== null) {
-        var options = {width: '100%', height: '100%', playerVars: {rel: 0, autoplay: 1},events: {'onStateChange': onPlayerStateChange, 'onError': error, 'onReady': hiddenMenu}}
+        var options = {width: '100%', height: '100%', playerVars: {rel: 0, autoplay: 1},events: {'onStateChange': onPlayerStateChange, 'onError': error, 'onReady': success}}
 
         if(obj.list !== undefined) {
             options.playerVars.listType = 'list'
@@ -51,7 +65,6 @@ function loadVideo(vurl) {
             error()
         }
 
-        success()
         ytPlayer = new YT.Player('player', options)
 
     } else {
@@ -68,7 +81,7 @@ function onPlayerStateChange(event) {
         if(event.target.getPlaylist() === null || event.target.getPlaylist().length === event.target.getPlaylistIndex() + 1) {
             event.target.destroy()
             $('#menu').removeAttr('hidden')
-            $('body').prepend('<div id="player"></div>')
+            //$('body').prepend('<div id="player"></div>')
         }
     }
 }
@@ -100,13 +113,21 @@ function error(event) {
     $('#success').text('')
 }
 
-function hiddenMenu() {
-    $('#menu').attr('hidden', 'dummy')
-}
-
 function success() {
     $('#success').text('再生に成功しました')
     $('#error').text('')
+    $('#menu').attr('hidden', 'dummy')
+    const webview = $('#player')
+    webview.addEventListener('new-window', function(e){
+        shell.openExternal(e.url);
+    });
+    webview.addEventListener('dom-ready', function(e){
+        webview.addEventListener('did-start-loading', function(e){
+            var url = webview.getUrl();
+            webview.stop();
+            shell.openExternal(url);
+        });
+    });
 }
 
 /*  デバッグ用  */

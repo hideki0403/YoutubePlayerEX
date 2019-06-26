@@ -5,6 +5,7 @@ const BrowserWindow = electron.BrowserWindow
 const shell = electron.shell
 const Tray = electron.Tray
 const Menu = electron.Menu
+const ipcMain = electron.ipcMain
 const windowStateKeeper = require('electron-window-state')
 
 commander.option('--enable-devtools')
@@ -56,11 +57,43 @@ if (!app.requestSingleInstanceLock()) {
     var contextMenu = Menu.buildFromTemplate([
       { label: 'ウィンドウを表示', click: function() {mainWindow.show()} },
       { type: 'separator' },
+      { label: '一時停止/再生', click: function() {} },
+      { label: '停止', click: function() {} },
+      { label: '次へ', click: function() {} },
+      { label: '戻る', click: function() {} },
+      { type: 'separator' },
       { label: '再起動', click: function() {app.relaunch(); app.exit()} },
       { label: '終了', click: function() {app.exit()} }
     ])
     trayIcon.setContextMenu(contextMenu)
     trayIcon.setToolTip('YoutubePlayerEX v' + app.getVersion())
+
+    mainWindow.setThumbarButtons([
+      {
+        tooltip: '戻る',
+        icon: __dirname + '/src/icons/previous.png',
+        flags: ['nobackground'],
+        click () {}
+      },
+      {
+        tooltip: '再生/一時停止',
+        icon: __dirname + '/src/icons/play-pause.png',
+        flags: ['nobackground'],
+        click () {}
+      },
+      {
+        tooltip: '停止',
+        icon: __dirname + '/src/icons/stop.png',
+        flags: ['nobackground'],
+        click () {}
+      },
+      {
+        tooltip: '次へ',
+        icon: __dirname + '/src/icons/next.png',
+        flags: ['nobackground'],
+        click () {}
+      }
+    ])
 
     trayIcon.on('click', function () {
       if(mainWindow.isVisible()) {
@@ -77,6 +110,10 @@ if (!app.requestSingleInstanceLock()) {
 
     mainWindow.webContents.on('new-window', (ev,url)=> {
       shell.openExternal(url)
+    })
+
+    ipcMain.on('close', () => {
+      mainWindow.close()
     })
 
     state.manage(mainWindow)

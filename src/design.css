@@ -2,8 +2,13 @@ body {
     position: relative;
 }
 
+label {
+    -webkit-user-select: none;
+    pointer-events: none;
+}
+
 .player-out {
-    z-index: 1;
+    z-index: 0;
     position: absolute;
     width: 100%;
     height: 100%;
@@ -15,7 +20,26 @@ body {
 }
 
 .player-out iframe:hover {
-    opacity: 0.3;
+    animation-duration: 3s;
+    animation-name: hover;
+}
+
+@keyframes hover {
+    0% {
+        opacity: 1;
+    }
+
+    15% {
+        opacity: 0.3;
+    }
+
+    85% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 .title {
@@ -67,7 +91,7 @@ body {
     height: 100%;
 }
 
-.title-button:hover {
+.close-button:hover {
     background-color: red;
 }
 
@@ -97,7 +121,8 @@ body {
 }
 
 .infobox {
-    padding-top: 25px
+    padding-top: 25px;
+    -webkit-user-select: none;
 }
 
 /*
