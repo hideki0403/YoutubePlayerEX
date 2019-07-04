@@ -1,0 +1,14 @@
+directories:
+  output: ../packaged/1.0.0
+  buildResources: build
+  app: ../app
+appId: ml.hideki0403.ytex
+productName: YoutubePlayerEX
+buildVersion: 1.0.0
+win:
+  icon: ../app/src/ytex.ico
+  target:
+    target: portable
+    arch:
+      - x64
+electronVersion: 5.0.6
