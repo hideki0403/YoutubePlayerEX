@@ -10,7 +10,15 @@ const windowStateKeeper = require('electron-window-state')
 const request = require('request')
 const version = app.getVersion()
 const dialog = electron.dialog
+const log = require('electron-log')
 require('date-utils')
+
+process.on('uncaughtException', function(err) {
+  log.error('electron:event:uncaughtException')
+  log.error(err)
+  log.error(err.stack + '\n')
+  app.quit()
+})
 
 var URL = 'https://ytplayer-ex.herokuapp.com/api/versions'
 
@@ -42,9 +50,11 @@ function checkUpdate(f) {
 )
 }
 
-commander.option('--enable-devtools')
-commander.parse(process.argv)
-const options = commander.opts()
+if(!app.isPackaged) {
+  commander.option('--enable-devtools')
+  commander.parse(process.argv)
+  options = commander.opts()
+}
 
 let mainWindow = null
 let trayIcon = null
@@ -87,9 +97,11 @@ if (!app.requestSingleInstanceLock()) {
     mainWindow.loadURL('file://' + __dirname + '/src/index.html')
 
     // DevToolsがonだと透過できません！！！
-    if(options.enableDevtools) {
-      console.log('[Debug] EnableDevTools')
-      mainWindow.openDevTools()
+    if(!app.isPackaged) {
+      if(options.enableDevtools) {
+        console.log('[Debug] EnableDevTools')
+        mainWindow.openDevTools()
+      }
     }
 
     trayIcon = new Tray(__dirname + '/src/ytex.ico')
