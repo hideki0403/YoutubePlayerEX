@@ -91,7 +91,8 @@ if (!app.requestSingleInstanceLock()) {
       transparent: true,
       frame: false,
       alwaysOnTop: true,
-      icon: __dirname + '/src/ytex.ico'
+      icon: __dirname + '/src/ytex.ico',
+      webPreferences: {nodeIntegration: true}
     })
 
     mainWindow.loadURL('file://' + __dirname + '/src/index.html')
