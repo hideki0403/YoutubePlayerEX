@@ -7,6 +7,11 @@ const clipboard = electron.clipboard
 const shell = electron.shell
 const ipcRenderer = electron.ipcRenderer
 
+/* CONSOLE MESSAGE */
+console.log('%c開発者ツールへようこそ！%c\nもしあなたが何をしているのか分からないのであれば、%cこのウィンドウを閉じること%cを推奨します。\n分かっているのであれば、YoutubePlayerEXを作るのを手伝ってください♡ ', 'font-size: 30px; color: #2196F3; text-shadow:0px 0px 10px #90caf9;', '', 'color: red;', '')
+console.log('%cこのソフトのバグの報告はGithubのIssuesへお願いします。(%o)', 'color: #81d4fa;', 'https://github.com/hideki0403/YoutubePlayerEX/issues')
+console.log('%c開発者のTwitter: %o',  'color: #81d4fa;', 'https://twitter.com/hideki_0403')
+
 var menu = new Menu()
 menu.append(new MenuItem({
     label: '貼り付け',
@@ -38,11 +43,15 @@ window.onload = function(){
 
 function parseVideoId(vurl) {
     // URLから動画ID等パース
-    var res = url.parse(vurl, true).query
-    if(Object.keys(res).length !== 0) {
-        return res
+    if(vurl.match(/https:\/\/youtu\.be\/*/)) {
+        return vurl.replace('https://youtu.be/', '')
     } else {
-        return null
+        var res = url.parse(vurl, true).query
+        if(Object.keys(res).length !== 0) {
+            return res
+        } else {
+            return null
+        }
     }
 }
 
@@ -76,27 +85,28 @@ function loadVideo(vurl) {
 
 function onPlayerStateChange(event) {
     // タイトル更新
-    document.title = $('#player').contents().find('.ytp-title-text')[0].innerText
+    document.title = event.target.l.videoData.title + ' - YoutubePlayerEX'
     if (event.target.getPlayerState() === YT.PlayerState.ENDED) {
         if(event.target.getPlaylist() === null || event.target.getPlaylist().length === event.target.getPlaylistIndex() + 1) {
             event.target.destroy()
             $('#menu').removeAttr('hidden')
-            //$('body').prepend('<div id="player"></div>')
         }
     }
+    ipcRenderer.send('state', event.target.l)
+    console.log(event.target.l.videoLoadedFraction)
 }
 
 function error(event) {
     // エラー処理
-    console.log('ERROR!')
+    console.log('ERROR! : ' + event)
     if(event === undefined) {
         $('#error').text('エラー(1): URLが入力されていないか、URLが不正です。')
     } else {
         event.target.destroy()
-        $('body').prepend('<div id="player"></div>')
+        $('#menu').removeAttr('hidden')
         switch(event.data) {
             case 2:
-                $('#error').text('エラー(2): リクエストに無効なパラメータ値が含まれています。')
+                $('#error').text('エラー(2): リクエストに無効なパラメーターが含まれています。')
                 break
             case 5:
                 $('#error').text('エラー(5): リクエストしたコンテンツは HTML5 プレーヤーで再生できない、または HTML5 プレーヤーに関する別のエラーが発生しました。')
@@ -117,17 +127,6 @@ function success() {
     $('#success').text('再生に成功しました')
     $('#error').text('')
     $('#menu').attr('hidden', 'dummy')
-    const webview = $('#player')
-    webview.addEventListener('new-window', function(e){
-        shell.openExternal(e.url);
-    });
-    webview.addEventListener('dom-ready', function(e){
-        webview.addEventListener('did-start-loading', function(e){
-            var url = webview.getUrl();
-            webview.stop();
-            shell.openExternal(url);
-        });
-    });
 }
 
 ipcRenderer.on('player-control', (event, arg) => {
@@ -143,6 +142,7 @@ ipcRenderer.on('player-control', (event, arg) => {
             ytPlayer.stopVideo()
             ytPlayer.destroy()
             $('#menu').removeAttr('hidden')
+            ipcRenderer.send('state', {playerState: 0})
             break
         case 'next':
             ytPlayer.nextVideo()

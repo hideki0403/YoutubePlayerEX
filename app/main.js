@@ -1,3 +1,11 @@
+const log = require('electron-log')
+process.on('uncaughtException', function(err) {
+  log.error('electron:event:uncaughtException')
+  log.error(err)
+  log.error(err.stack + '\n')
+  app.quit()
+})
+
 const electron = require('electron')
 const commander = require('commander')
 const app = electron.app
@@ -10,15 +18,10 @@ const windowStateKeeper = require('electron-window-state')
 const request = require('request')
 const version = app.getVersion()
 const dialog = electron.dialog
-const log = require('electron-log')
+const rpc = require('discord-rich-presence')('596887631124758538')
+const Store = require('electron-store')
+const config = new Store()
 require('date-utils')
-
-process.on('uncaughtException', function(err) {
-  log.error('electron:event:uncaughtException')
-  log.error(err)
-  log.error(err.stack + '\n')
-  app.quit()
-})
 
 var URL = 'https://ytplayer-ex.herokuapp.com/api/versions'
 
@@ -46,8 +49,29 @@ function checkUpdate(f) {
           buttons: ['OK']
         })
       }
+    }
+  )
+}
+
+function store(item) {
+  if(config.get(item) === undefined) {
+    config.set(item, false)
   }
-)
+  return config.get(item)
+}
+
+function checkbox(n) {
+  if(store(n)) {
+    config.set(n, false)
+  } else {
+    config.set(n, true)
+  }
+}
+
+function updateRPC(d) {
+  if(!store('conf-rpc')) {
+    rpc.updatePresence(d)
+  }
 }
 
 if(!app.isPackaged) {
@@ -115,6 +139,14 @@ if (!app.requestSingleInstanceLock()) {
       { label: '戻る', click: function() {control('previous')} },
       { type: 'separator' },
       { label: '更新', click: function() {checkUpdate(true)} },
+      { label: '設定', submenu: [
+        { label: 'Discordに詳細を表示させない', type: 'checkbox', checked: store('conf-rpc'), click: function(){ checkbox('conf-rpc') }},
+        { label: '最前面に表示させない', type: 'checkbox', checked: store('conf-pip'), click: function(){ checkbox('conf-pip') }},
+        { label: '開発者向け', submenu: [
+          { label: 'RendererDevTools', click: function() {mainWindow.openDevTools()} },
+          { label: 'Reload', click: function() {mainWindow.webContents.reload()} },
+        ]}
+      ]},
       { type: 'separator' },
       { label: '再起動', click: function() {app.relaunch(); app.exit()} },
       { label: '終了', click: function() {app.exit()} }
@@ -164,12 +196,72 @@ if (!app.requestSingleInstanceLock()) {
       mainWindow.hide()
     })
 
-    mainWindow.webContents.on('new-window', (ev,url)=> {
+    mainWindow.webContents.on('new-window', (event, url)=> {
+      event.preventDefault()
       shell.openExternal(url)
     })
 
     ipcMain.on('close', () => {
       mainWindow.close()
+    })
+
+    const timestamp = Date.now()
+
+    ipcMain.on('state', (event, d) => {
+      arr = [0, 1, 2]
+      console.log(d.playerState)
+      // ここにipc関連の処理
+      if(arr.includes(d.playerState)) {
+        if(d.playlist !== null) {
+          if(d.playerState === 0) {
+            rpc_play_type = ''
+          } else {
+            rpc_play_type = 'playlist (' + (d.playlistIndex + 1) + '/' + (d.playlist.length + 1) + ')'
+          }
+        } else {
+          rpc_play_type = 'video'
+        }
+  
+        if(d.playerState !== 0) {
+          rpc_music = d.videoData.title
+          rpc_author = d.videoData.author
+          trayIcon.setToolTip(rpc_music + ' - YoutubePlayerEX v' + app.getVersion())
+        } else {
+          rpc_music = 'Idling'
+          rpc_author = 'YoutubePlayerEX v' + app.getVersion()
+          trayIcon.setToolTip('YoutubePlayerEX v' + app.getVersion())
+        }
+  
+        switch(d.playerState) {
+          case 1:
+            rpc_s_key = 'play'
+            rpc_s_text = 'Playing ' + rpc_play_type
+            break
+  
+          case 2:
+              rpc_s_key = 'pause'
+              rpc_s_text = 'Pausing ' + rpc_play_type
+              break
+  
+          case 0:
+              rpc_s_key = 'stop'
+              rpc_s_text = 'Idling'
+              break
+        }
+  
+        var tmp = {
+          details: rpc_music,
+          state: rpc_author,
+          startTimestamp: timestamp,
+          largeImageKey: 'main',
+          largeImageText: 'YoutubePlayerEX v' + version,
+          smallImageKey: rpc_s_key,
+          smallImageText: rpc_s_text,
+          instance: true,
+        }
+  
+        updateRPC(tmp) 
+      }
     })
 
     mainWindowState.manage(mainWindow)

@@ -5,7 +5,7 @@ const builder = require('electron-builder');
 
 var version = config.version
 
-
+/*
 builder.build({
     platform: 'win',
     config: {
@@ -25,8 +25,8 @@ builder.build({
         }
     }
 });
+*/
 
-/*
 packager({  
   dir: src,
   out: '../packaged/' + version,
@@ -42,5 +42,3 @@ packager({
   asar: true,
   prune: true
 })
-
-*/
