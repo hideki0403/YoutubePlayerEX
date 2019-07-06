@@ -1,5 +1,5 @@
 # YoutubePlayerEX
-最新版のダウンロードは[こちらから](https://ytplayer-ex.herokuapp.com/download/1.0.2)！
+最新版のダウンロードは[こちらから](https://ytplayer-ex.herokuapp.com/download/0)！
 
 絶賛開発中です！！！
 ### バグについて
