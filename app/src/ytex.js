@@ -90,6 +90,7 @@ function onPlayerStateChange(event) {
         if(event.target.getPlaylist() === null || event.target.getPlaylist().length === event.target.getPlaylistIndex() + 1) {
             event.target.destroy()
             $('#menu').removeAttr('hidden')
+            document.title = 'YoutubePlayerEX'
         }
     }
     ipcRenderer.send('state', event.target.l)
@@ -143,6 +144,7 @@ ipcRenderer.on('player-control', (event, arg) => {
             ytPlayer.destroy()
             $('#menu').removeAttr('hidden')
             ipcRenderer.send('state', {playerState: 0})
+            document.title = 'YoutubePlayerEX'
             break
         case 'next':
             ytPlayer.nextVideo()

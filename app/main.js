@@ -38,7 +38,7 @@ function checkUpdate(f) {
           buttons: ['Yes', 'No']
         }, function(response) {
           if(response === 0) {
-            shell.openExternal('https://ytplayer-ex.herokuapp.com/')
+            shell.openExternal('https://ytplayer-ex.herokuapp.com/download/' + update.tag)
           }
         })
       } else if(f === true) {
@@ -144,7 +144,7 @@ if (!app.requestSingleInstanceLock()) {
         { label: '最前面に表示させない', type: 'checkbox', checked: store('conf-pip'), click: function(){ checkbox('conf-pip') }},
         { label: '開発者向け', submenu: [
           { label: 'RendererDevTools', click: function() {mainWindow.openDevTools()} },
-          { label: 'Reload', click: function() {mainWindow.webContents.reload()} },
+          { label: 'Reload', click: function() {mainWindow.webContents.reload()} }
         ]}
       ]},
       { type: 'separator' },
