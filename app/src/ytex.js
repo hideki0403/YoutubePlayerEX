@@ -6,11 +6,11 @@ const MenuItem = remote.MenuItem
 const clipboard = electron.clipboard
 const shell = electron.shell
 const ipcRenderer = electron.ipcRenderer
+const app = electron.remote.app
 
 /* CONSOLE MESSAGE */
-console.log('%c開発者ツールへようこそ！%c\nもしあなたが何をしているのか分からないのであれば、%cこのウィンドウを閉じること%cを推奨します。\n分かっているのであれば、YoutubePlayerEXを作るのを手伝ってください♡ ', 'font-size: 30px; color: #2196F3; text-shadow:0px 0px 10px #90caf9;', '', 'color: red;', '')
-console.log('%cこのソフトのバグの報告はGithubのIssuesへお願いします。(%o)', 'color: #81d4fa;', 'https://github.com/hideki0403/YoutubePlayerEX/issues')
-console.log('%c開発者のTwitter: %o',  'color: #81d4fa;', 'https://twitter.com/hideki_0403')
+console.log('%c開発者ツールへようこそ！%cYoutubePlayerEX v' + app.getVersion() + '%c\nもしあなたが何をしているのか分からないのであれば、%cこのウィンドウを閉じること%cを推奨します。\n分かっているのであれば、YoutubePlayerEXを作るのを手伝ってください♡ ', 'font-size: 30px; color: #2196F3; text-shadow:0px 0px 10px #90caf9;', 'font-size: 12px; color: #2196F3; text-shadow:0px 0px 10px #90caf9;', '', 'color: red;', '')
+console.log('%cこのソフトのバグの報告はGithubのIssuesへお願いします。\n--> https://github.com/hideki0403/YoutubePlayerEX/issues', 'color: #1976d2;')
 
 var menu = new Menu()
 menu.append(new MenuItem({

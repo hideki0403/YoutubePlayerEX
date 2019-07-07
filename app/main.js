@@ -38,7 +38,7 @@ function checkUpdate(f) {
           buttons: ['Yes', 'No']
         }, function(response) {
           if(response === 0) {
-            shell.openExternal('https://ytplayer-ex.herokuapp.com/download/' + update.tag)
+            shell.openExternal('https://ytplayer-ex.herokuapp.com/download/0')
           }
         })
       } else if(f === true) {
