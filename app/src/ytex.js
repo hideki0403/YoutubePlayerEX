@@ -4,13 +4,11 @@ const electron = require('electron')
 const Menu = remote.Menu
 const MenuItem = remote.MenuItem
 const clipboard = electron.clipboard
-const shell = electron.shell
 const ipcRenderer = electron.ipcRenderer
 const app = electron.remote.app
 
 /* CONSOLE MESSAGE */
-console.log('%c開発者ツールへようこそ！%cYoutubePlayerEX v' + app.getVersion() + '%c\nもしあなたが何をしているのか分からないのであれば、%cこのウィンドウを閉じること%cを推奨します。\n分かっているのであれば、YoutubePlayerEXを作るのを手伝ってください♡ ', 'font-size: 30px; color: #2196F3; text-shadow:0px 0px 10px #90caf9;', 'font-size: 12px; color: #2196F3; text-shadow:0px 0px 10px #90caf9;', '', 'color: red;', '')
-console.log('%cこのソフトのバグの報告はGithubのIssuesへお願いします。\n--> https://github.com/hideki0403/YoutubePlayerEX/issues', 'color: #1976d2;')
+console.log('\n%c開発者ツールへようこそ！\n%cYoutubePlayerEX v' + app.getVersion() + '%c\n\nもしあなたが何をしているのか分からないのであれば、%cこのウィンドウを閉じること%cを推奨します。\n分かっているのであれば、YoutubePlayerEXを作るのを手伝ってください♡ \n\n%cこのソフトのバグの報告はGithubのIssuesへお願いします。\n--> https://github.com/hideki0403/YoutubePlayerEX/issues\n%c製作者: ゆきねこ(@hideki_0403)\n--> https://twitter.com/hideki_0403\n\n', 'font-size: 30px; color: #2196F3; text-shadow:0px 0px 10px #90caf9;', 'font-size: 12px; color: #2196F3; text-shadow:0px 0px 10px #90caf9;', '', 'color: red;', '', 'color: #1976d2;', 'color: #1976d2;')
 
 var menu = new Menu()
 menu.append(new MenuItem({
@@ -44,7 +42,7 @@ window.onload = function(){
 function parseVideoId(vurl) {
     // URLから動画ID等パース
     if(vurl.match(/https:\/\/youtu\.be\/*/)) {
-        return vurl.replace('https://youtu.be/', '')
+        return {v: vurl.replace('https://youtu.be/', '')}
     } else {
         var res = url.parse(vurl, true).query
         if(Object.keys(res).length !== 0) {
@@ -60,7 +58,7 @@ function loadVideo(vurl) {
     var obj = parseVideoId(vurl)
 
     if(obj !== null) {
-        var options = {width: '100%', height: '100%', playerVars: {rel: 0, autoplay: 1},events: {'onStateChange': onPlayerStateChange, 'onError': error, 'onReady': success}}
+        var options = {width: '100%', height: '100%', playerVars: {rel: 0, autoplay: 1, origin: 'file://'},events: {'onStateChange': onPlayerStateChange, 'onError': error, 'onReady': success}}
 
         if(obj.list !== undefined) {
             options.playerVars.listType = 'list'
@@ -94,7 +92,6 @@ function onPlayerStateChange(event) {
         }
     }
     ipcRenderer.send('state', event.target.l)
-    console.log(event.target.l.videoLoadedFraction)
 }
 
 function error(event) {
@@ -156,6 +153,8 @@ ipcRenderer.on('player-control', (event, arg) => {
 })
 
 /*  デバッグ用  */
+/*
 function onYouTubeIframeAPIReady() {
-    //loadVideo('https://www.youtube.com/watch?v=Yva5rDeBYmY&list=PLhBFtfU8XBpYT46_5NxutQkxJXMVf_ajO&index=22&t=0s')
+    loadVideo('https://www.youtube.com/watch?v=Yva5rDeBYmY&list=PLhBFtfU8XBpYT46_5NxutQkxJXMVf_ajO&index=22&t=0s')
 }
+*/

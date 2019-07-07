@@ -21,6 +21,7 @@ const dialog = electron.dialog
 const rpc = require('discord-rich-presence')('596887631124758538')
 const Store = require('electron-store')
 const config = new Store()
+const timestamp = Date.now()
 require('date-utils')
 
 var URL = 'https://ytplayer-ex.herokuapp.com/api/versions'
@@ -129,6 +130,17 @@ if (!app.requestSingleInstanceLock()) {
       }
     }
 
+    updateRPC({
+      details: 'Idling',
+      state: 'YoutubePlayerEX v' + app.getVersion(),
+      startTimestamp: timestamp,
+      largeImageKey: 'main',
+      largeImageText: 'YoutubePlayerEX v' + version,
+      smallImageKey: 'stop',
+      smallImageText: 'Idling',
+      instance: true,
+    })
+
     trayIcon = new Tray(__dirname + '/src/ytex.ico')
     var contextMenu = Menu.buildFromTemplate([
       { label: 'ウィンドウを表示', click: function() {mainWindow.show()} },
@@ -205,11 +217,8 @@ if (!app.requestSingleInstanceLock()) {
       mainWindow.close()
     })
 
-    const timestamp = Date.now()
-
     ipcMain.on('state', (event, d) => {
       arr = [0, 1, 2]
-      console.log(d.playerState)
       // ここにipc関連の処理
       if(arr.includes(d.playerState)) {
         if(d.playlist !== null) {
