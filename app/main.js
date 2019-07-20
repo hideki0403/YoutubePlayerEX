@@ -154,6 +154,7 @@ if (!app.requestSingleInstanceLock()) {
       { label: '設定', submenu: [
         { label: 'Discordに詳細を表示させない', type: 'checkbox', checked: store('conf-rpc'), click: function(){ checkbox('conf-rpc') }},
         { label: '最前面に表示させない', type: 'checkbox', checked: store('conf-pip'), click: function(){ checkbox('conf-pip') }},
+        { label: '透過を無効化する', type: 'checkbox', checked: store('conf-opacity'), click: function(){ checkbox('conf-opacity') }},
         { label: '開発者向け', submenu: [
           { label: 'RendererDevTools', click: function() {mainWindow.openDevTools()} },
           { label: 'Reload', click: function() {mainWindow.webContents.reload()} }
@@ -225,7 +226,7 @@ if (!app.requestSingleInstanceLock()) {
           if(d.playerState === 0) {
             rpc_play_type = ''
           } else {
-            rpc_play_type = 'playlist (' + (d.playlistIndex + 1) + '/' + (d.playlist.length + 1) + ')'
+            rpc_play_type = 'playlist (' + (d.playlistIndex + 1) + '/' + (d.playlist.length) + ')'
           }
         } else {
           rpc_play_type = 'video'
