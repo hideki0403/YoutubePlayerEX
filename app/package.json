@@ -16,7 +16,7 @@
     "electron-log": "^3.0.6",
     "electron-store": "^4.0.0",
     "electron-window-state": "^5.0.3",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "register-scheme": "github:devsnek/node-register-scheme",
     "request": "^2.88.0"
   },
