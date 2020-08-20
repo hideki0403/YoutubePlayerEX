@@ -83,7 +83,7 @@ function loadVideo(vurl) {
 
 function onPlayerStateChange(event) {
     // タイトル更新
-    document.title = event.target.l.videoData.title + ' - YoutubePlayerEX'
+    document.title = event.target.playerInfo.videoData.title + ' - YoutubePlayerEX'
     if (event.target.getPlayerState() === YT.PlayerState.ENDED) {
         if(event.target.getPlaylist() === null || event.target.getPlaylist().length === event.target.getPlaylistIndex() + 1) {
             event.target.destroy()
@@ -91,7 +91,7 @@ function onPlayerStateChange(event) {
             document.title = 'YoutubePlayerEX'
         }
     }
-    ipcRenderer.send('state', event.target.l)
+    ipcRenderer.send('state', event.target.playerInfo)
 }
 
 function error(event) {
