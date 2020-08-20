@@ -74,6 +74,34 @@ function updateRPC(d) {
     }
 }
 
+function updateAspectRatio() {
+    switch(store('ratio')) {
+        case false: {
+            r_width = 0
+            r_height = 0
+            break
+        }
+
+        case '16:9': {
+            r_width = 16
+            r_height = 9
+            break
+        }
+
+        case '4:3': {
+            r_width = 4
+            r_height = 3
+            break
+        }
+
+        case '9:16': {
+            r_width = 9
+            r_height = 16
+            break
+        }
+    }
+}
+
 if(!app.isPackaged) {
     commander.option('--enable-devtools')
     commander.parse(process.argv)
@@ -114,7 +142,6 @@ if (!app.requestSingleInstanceLock()) {
         'height': mainWindowState.height,
         transparent: true,
         frame: false,
-        alwaysOnTop: true,
         icon: __dirname + '/src/ytex.ico',
         webPreferences: {nodeIntegration: true}
     })
@@ -129,6 +156,8 @@ if (!app.requestSingleInstanceLock()) {
         }
     }
 
+    mainWindow.setAlwaysOnTop(!store('conf-pip'))
+
     updateRPC({
         details: 'Idling',
         state: 'YoutubePlayerEX v' + app.getVersion(),
@@ -139,6 +168,40 @@ if (!app.requestSingleInstanceLock()) {
         smallImageText: 'Idling',
         instance: true
     })
+
+    var currentRatio = store('ratio')
+    var ratio_settings = []
+    var availableRatios = [false, '16:9', '4:3', '9:16']
+
+    for(var i = 0; availableRatios.length > i; i++) {
+        if(availableRatios[i] === currentRatio) {
+            var isEnabled = true
+        } else {
+            var isEnabled = false
+        }
+
+        if(!availableRatios[i]) {
+            var labelName = '固定しない'
+        } else {
+            var labelName = availableRatios[i]
+        }
+
+        ratio_settings.push({
+            label: labelName,
+            type: 'radio',
+            checked: isEnabled,
+            id: 'ratio-' + availableRatios[i],
+            click: function(obj) {
+                if(obj.id === 'ratio-false') {
+                    config.set('ratio', false)
+                } else {
+                    config.set('ratio', obj.id.replace('ratio-', ''))
+                }
+                
+                updateAspectRatio()
+            }
+        })
+    }
 
     trayIcon = new Tray(__dirname + '/src/ytex.ico')
     var contextMenu = Menu.buildFromTemplate([
@@ -151,9 +214,11 @@ if (!app.requestSingleInstanceLock()) {
         { type: 'separator' },
         { label: '更新', click: function() {checkUpdate(true)} },
         { label: '設定', submenu: [
+            { label: '画面比率固定', submenu: ratio_settings},
             { label: 'Discordに詳細を表示させない', type: 'checkbox', checked: store('conf-rpc'), click: function(){ checkbox('conf-rpc') }},
-            { label: '最前面に表示させない', type: 'checkbox', checked: store('conf-pip'), click: function(){ checkbox('conf-pip') }},
-            { label: '透過を無効化する', type: 'checkbox', checked: store('conf-opacity'), click: function(){ checkbox('conf-opacity') }},
+            { label: '最前面に表示させない', type: 'checkbox', checked: store('conf-pip'), click: function(){ checkbox('conf-pip'); mainWindow.setAlwaysOnTop(!store('conf-pip')) }},
+            { label: 'ホバー時の透過を無効化する', type: 'checkbox', checked: store('conf-opacity'), click: function(){ checkbox('conf-opacity'); mainWindow.webContents.send('opacity-control', store('conf-opacity')) }},
+            { type: 'separator' },
             { label: '開発者向け', submenu: [
                 { label: 'RendererDevTools', click: function() {mainWindow.openDevTools()} },
                 { label: 'Reload', click: function() {mainWindow.webContents.reload()} }
@@ -205,11 +270,27 @@ if (!app.requestSingleInstanceLock()) {
         mainWindow.hide()
     })
 
+    mainWindow.on('focus', () => {
+        mainWindow.webContents.send('focus-control', true)
+    })
+
+    mainWindow.on('blur', () => {
+        mainWindow.webContents.send('focus-control', false)
+    })
+
+    mainWindow.webContents.on('did-finish-load', () => {
+        mainWindow.webContents.send('opacity-control', store('conf-opacity'))
+    })
+
+    updateAspectRatio()
+
     mainWindow.on('resize', function () {
-        setTimeout(function () {
-            var size = mainWindow.getSize()
-            mainWindow.setSize(size[0], parseInt(size[0] * 9 / 16))
-        }, 0)
+        if(r_width !== 0) {
+            setTimeout(function () {
+                var size = mainWindow.getSize()
+                mainWindow.setSize(size[0], parseInt(size[0] * r_height / r_width))
+            }, 0)
+        }
     })
 
     mainWindow.webContents.on('new-window', (event, url)=> {

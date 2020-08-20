@@ -152,6 +152,23 @@ ipcRenderer.on('player-control', (event, arg) => {
     }    
 })
 
+ipcRenderer.on('focus-control', (event, arg) => {
+    if(arg) {
+        $('#frame').css('opacity', '0.7')
+    } else {
+        $('#frame').css('opacity', '0')
+    }
+})
+
+ipcRenderer.on('opacity-control', (event, arg) => {
+    console.log(arg)
+    if(!arg) {
+        $('#player-outside').addClass('hover-opacity')
+    } else {
+        $('#player-outside').removeClass('hover-opacity')
+    }
+})
+
 /*  デバッグ用  */
 /*
 function onYouTubeIframeAPIReady() {

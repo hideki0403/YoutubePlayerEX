@@ -14,12 +14,12 @@ label {
     height: 100%;
 }
 
-.player-out iframe {
+.hover-opacity iframe {
     opacity: 1;
     transition: 0.3s
 }
 
-.player-out iframe:hover {
+.hover-opacity iframe:hover {
     animation-duration: 2s;
     animation-name: hover;
 }
@@ -30,11 +30,11 @@ label {
     }
 
     15% {
-        opacity: 0.3;
+        opacity: 0.35;
     }
 
     85% {
-        opacity: 0.3;
+        opacity: 0.35;
     }
 
     100% {
@@ -44,7 +44,7 @@ label {
 
 .title {
     z-index: 2;
-    opacity: 0.3;
+    opacity: 0.6;
     position: absolute;
     top: 0px;
     left: 0px;
@@ -58,10 +58,6 @@ label {
 
 .title i {
     font-size: 20px !important;
-}
-
-.title:hover {
-    opacity: 0.7;
 }
 
 .drag {
