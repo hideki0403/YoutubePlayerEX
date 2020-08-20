@@ -169,6 +169,14 @@ ipcRenderer.on('opacity-control', (event, arg) => {
     }
 })
 
+ipcRenderer.on('trans-control', (event, arg) => {
+    if(!arg) {
+        arg = 100
+    }
+
+    $('#player-outside').css('opacity', arg / 100)
+})
+
 /*  デバッグ用  */
 /*
 function onYouTubeIframeAPIReady() {

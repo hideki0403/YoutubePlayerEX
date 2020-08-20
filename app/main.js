@@ -102,6 +102,12 @@ function updateAspectRatio() {
     }
 }
 
+function updateOpacity() {
+    var currentOpacity = store('opacity')
+
+    mainWindow.webContents.send('trans-control', currentOpacity)
+}
+
 if(!app.isPackaged) {
     commander.option('--enable-devtools')
     commander.parse(process.argv)
@@ -174,17 +180,10 @@ if (!app.requestSingleInstanceLock()) {
     var availableRatios = [false, '16:9', '4:3', '9:16']
 
     for(var i = 0; availableRatios.length > i; i++) {
-        if(availableRatios[i] === currentRatio) {
-            var isEnabled = true
-        } else {
-            var isEnabled = false
-        }
+        
+        var isEnabled = availableRatios[i] === currentRatio
 
-        if(!availableRatios[i]) {
-            var labelName = '固定しない'
-        } else {
-            var labelName = availableRatios[i]
-        }
+        var labelName = !availableRatios[i] ? '固定しない' : availableRatios[i]
 
         ratio_settings.push({
             label: labelName,
@@ -203,6 +202,34 @@ if (!app.requestSingleInstanceLock()) {
         })
     }
 
+    var currentOpacity = store('opacity')
+    var opacity_settings = []
+    var availableOpacities = [20, 40, 60, 80, false]
+
+    for(var i = 0; availableOpacities.length > i; i++) {
+
+        var isEnabled = !availableOpacities[i] ? currentOpacity === false : (availableOpacities[i] * 1)  == currentOpacity
+
+        var labelName = !availableOpacities[i] ? '100%' : availableOpacities[i] + '%'
+
+        opacity_settings.push({
+            label: labelName,
+            type: 'radio',
+            checked: isEnabled,
+            id: 'opacity-' + availableOpacities[i],
+            click: function(obj) {
+                if(obj.id === 'opacity-false') {
+                    config.set('opacity', false)
+                } else {
+                    config.set('opacity', obj.id.replace('opacity-', ''))
+                }
+                
+                updateOpacity()
+            }
+        })
+    }
+
+
     trayIcon = new Tray(__dirname + '/src/ytex.ico')
     var contextMenu = Menu.buildFromTemplate([
         { label: 'ウィンドウを表示', click: function() {mainWindow.show()} },
@@ -215,6 +242,7 @@ if (!app.requestSingleInstanceLock()) {
         { label: '更新', click: function() {checkUpdate(true)} },
         { label: '設定', submenu: [
             { label: '画面比率固定', submenu: ratio_settings},
+            { label: '不透明度変更', submenu: opacity_settings},
             { label: 'Discordに詳細を表示させない', type: 'checkbox', checked: store('conf-rpc'), click: function(){ checkbox('conf-rpc') }},
             { label: '最前面に表示させない', type: 'checkbox', checked: store('conf-pip'), click: function(){ checkbox('conf-pip'); mainWindow.setAlwaysOnTop(!store('conf-pip')) }},
             { label: 'ホバー時の透過を無効化する', type: 'checkbox', checked: store('conf-opacity'), click: function(){ checkbox('conf-opacity'); mainWindow.webContents.send('opacity-control', store('conf-opacity')) }},
@@ -280,6 +308,7 @@ if (!app.requestSingleInstanceLock()) {
 
     mainWindow.webContents.on('did-finish-load', () => {
         mainWindow.webContents.send('opacity-control', store('conf-opacity'))
+        updateOpacity()
     })
 
     updateAspectRatio()
